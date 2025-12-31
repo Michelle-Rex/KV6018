@@ -21,5 +21,4 @@ class Cylinder:
 
     def check_overlap(self, other):
         distance = self.distance_to_other(other)
-
         return distance < (self.radius + other.radius + 0.01)
