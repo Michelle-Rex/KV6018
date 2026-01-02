@@ -16,9 +16,13 @@ class Cylinder:
     def get_origin_distance(self):
         return np.sqrt(self.x**2 + self.y**2)
     
+    def containing_radius(self):
+        return self.get_origin_distance + self.radius
+    
     def distance_to_other(self, other):
         return np.sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
 
     def check_overlap(self, other):
         distance = self.distance_to_other(other)
         return distance < (self.radius + other.radius + 0.01)
+    
