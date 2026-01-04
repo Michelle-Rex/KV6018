@@ -2,6 +2,7 @@ from cylinder_class.py import Cylinder
 import numpy as np
 
 class Bunch:
+    #manages the collection of cylinders and the placement aglorithms
     def __init__(self, radii, weight):
         self.cylinders = [
             Cylinder(r, w)
@@ -26,7 +27,7 @@ class Bunch:
 
     def find_open_points(self, new_cylinder): #find open points where the new cylinder can be placed 
         open_points = []
-        placed = [c for c in self.cylinders if cyl.c.placed]
+        placed = [c for c in self.cylinders if c.placed]
 
         if len(placed) == 0: 
             #place first at origin
