@@ -75,10 +75,26 @@ class Bunch:
 
     def get_centre_grav(self): #get the  centre of gravity of all the circles
         pass
+    
+    def weight_sort_key(e):
+        return e.weight
 
-    def ordered_place(self):
+    def size_sort_key(e):
+        return e.radii
+    
+    def ordered_place(self, type):
+        #place in order of weight or size
+        if type == "w":
+            self.cylinders.sort(key = self.weight_sort_key)
+        else:
+            self.cylinders.sort(key = self.size_sort_key)
+        
         for c in self.cylinders:
-            pass
+            open_points = self.find_open_points(c)
+
+            if open_points:
+                pass
+
 
     def greedy_place(self):
         pass
