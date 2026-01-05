@@ -27,12 +27,16 @@ class Cylinder:
         distance = self.distance_to_other(other)
         return distance < (self.radius + other.radius + 0.01)
 
+
+
 class Bunch:
     #manages the collection of cylinders and the placement aglorithms
-    def __init__(self, radii, weight):
+    def __init__(self, radii, weight, rec_len, rec_width):
         self.cylinders = [Cylinder(radii[i], weight[i]) for i in (0, len(radii)-1)]
         self.radii = radii
         self.weight = weight
+        self.rec_len = rec_len
+        self.rec_width = rec_width
 
     def reset(self):
         for cylinder in self.cylinders:
@@ -43,9 +47,12 @@ class Bunch:
     def get_containing_radius(self):
         if None in self.cylinders:
             return 0
-        for cylinder in self.cylinders:
+        for c in self.cylinders:
             return max(c.containing_radius for c in self.cylinders)
-        #not sure if i need this
+    
+    def check_fit(self):
+        if self.get_containing_radius()*2 > self.rec_len or self.get_containing_radius()*2 > self.rec_width:
+            return "invalid solution: does not fit within container"
 
     def find_open_points(self, new_cylinder): #find open points where the new cylinder can be placed 
         open_points = []
@@ -64,7 +71,6 @@ class Bunch:
                 y = c1.y + distance * np.sin(angle)
                 #dist_from_origin = np.sqrt(x**2 + y**2)   DO I NEED THIS?? WE'LL FIND OUT IN THE NEXT EPISODE
                 open_points.append((x,y))
-
         return open_points
 
     def get_centre_grav(self): #get the  centre of gravity of all the circles
@@ -74,8 +80,12 @@ class Bunch:
         for c in self.cylinders:
             pass
 
-#testing
+    def greedy_place(self):
+        pass
 
-test_bunch = Bunch([10, 6], [10, 8])
-for b in test_bunch.cylinders:
-    print(b.weight)
+    def random_place(self):
+        pass
+
+    def placement_mix(self):
+        pass
+#testing
