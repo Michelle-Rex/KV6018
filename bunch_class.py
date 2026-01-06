@@ -69,8 +69,10 @@ class Bunch:
             for angle in np.linspace(0, 2*np.pi, 36, endpoint = False):
                 x = c1.x + distance * np.cos(angle)
                 y = c1.y + distance * np.sin(angle)
-                #dist_from_origin = np.sqrt(x**2 + y**2)   DO I NEED THIS?? WE'LL FIND OUT IN THE NEXT EPISODE
-                open_points.append((x,y))
+                dist_from_origin = np.sqrt(x**2 + y**2)  
+                if not dist_from_origin + new_cylinder.radius > self.rec_len/2 and not dist_from_origin + new_cylinder.radius > self.rec_width/2:
+                    #should only add points which ensure the cylinder fits within the rectangle
+                    open_points.append((x,y))
         return open_points
 
     def get_centre_grav(self): #get the  centre of gravity of all the circles
