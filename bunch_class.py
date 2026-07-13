@@ -1,4 +1,4 @@
-#from cylinder_class.py import Cylinder
+import cylinder_class as cyl
 import numpy as np
 
 class Cylinder:
@@ -32,7 +32,7 @@ class Cylinder:
 class Bunch:
     #manages the collection of cylinders and the placement aglorithms
     def __init__(self, radii, weight, rec_len, rec_width):
-        self.cylinders = [Cylinder(radii[i], weight[i]) for i in (0, len(radii)-1)]
+        self.cylinders = [cyl.Cylinder(radii[i], weight[i]) for i in (0, len(radii)-1)]
         self.radii = radii
         self.weight = weight
         self.rec_len = rec_len
