@@ -1,5 +1,7 @@
 import cylinder_class as cyl
 import numpy as np
+import random
+import matplotlib.pyplot as plt
 
 class Bunch:
     #manages the collection of cylinders and the placement aglorithms
@@ -45,7 +47,23 @@ class Bunch:
                 if not dist_from_origin + new_cylinder.radius > self.rec_len/2 and not dist_from_origin + new_cylinder.radius > self.rec_width/2:
                     #should only add points which ensure the cylinder fits within the rectangle
                     open_points.append((x,y))
-        return open_points
+            return open_points
+    
+        for i in (len(placed)):
+            for j in range(i+1, len(placed)):
+                c1 = placed[i]
+                c2 = placed [j]
+
+    def find_tangent_positions(self, c1, c2, new):
+         #find where the new circle can be placed to tangent with the previous 2 (uses circle-circle intersection --not entirely sure how the geometry works)
+        r1 = c1.radius + new.radius
+        r2 = c2.radius + new.radius
+        d = c1.distance_to_other(c2)
+
+        if d > r1 + r2 or d < abs(r1 - r2) or d ==0:
+            pass
+        
+
 
     def get_centre_grav(self): #get the  centre of gravity of all the circles
         pass
@@ -56,26 +74,21 @@ class Bunch:
     def size_sort_key(e):
         return e.radii
     
+    def sort_by_size(self):
+        self.cylinders.sort(key = self.size_sort_key)
+    
+    def sort_by_weight(self):
+        self.cylinders.sort(key = self.weight_sort_key)
+
+    def random_shuffle(self):
+        random.shuffle(self.cylinders)
+
     def ordered_place(self, type):
-        #place in order of weight or size
-        if type == "w":
-            self.cylinders.sort(key = self.weight_sort_key)
-        else:
-            self.cylinders.sort(key = self.size_sort_key)
-        
+        #place first cylinder in the centre
         for c in self.cylinders:
             open_points = self.find_open_points(c)
 
             if open_points:
                 pass
 
-
-    def greedy_place(self):
-        pass
-
-    def random_place(self):
-        pass
-
-    def placement_mix(self):
-        pass
 #testing
