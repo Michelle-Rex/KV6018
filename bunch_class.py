@@ -133,14 +133,27 @@ class Bunch:
                 pass
 
     def draw(self, title = "Cylinder Placement", show_open_points = False):
+        #set up
         fig, ax = plt.subplots(figsize=(10, 10))
         containing_radius = self.get_containing_radius()
         container = plt.Rectangle((0,0), width = self.rec_width, height = self.rec_len, fill = False, edgecolour = "black", linewidth = 2, label = "Cargo Container")
         
         ax.add_patch(container)
 
+        #I'm not entirely sure on how this if statement resolves, as far as I can tell it's checking 
         if show_open_points and len([c for c in self.cylinders if c.is_placed]) < len(self.cylinders):
             next_cylinder = [c for c in self.cylinders if not c.is_placed][0]
             open_points = self.find_open_points(next_cylinder)
+
+            if open_points:
+                xs, ys = zip(*[(p[0], p[1]) for p in open_points])
+                ax.scatter(xs, ys, c= "lime", s=30, alpha = 0.5, zorder = 5, label = "Open Points")
+
+        for cylinder in self.cylinders:
+            if cylinder.is_placed():
+                cylinder_patch = plt.Circle((cylinder.x, cylinder.y), cylinder.radius,
+                                        fill=False, edgecolor= "#66ccff", linewidth=2)
+                ax.add_patch(cylinder_patch)
+    
 
 #testing
