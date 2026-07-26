@@ -28,7 +28,8 @@ class Bunch:
         if self.get_containing_radius()*2 > self.rec_len or self.get_containing_radius()*2 > self.rec_width:
             return "invalid solution: does not fit within container"
 
-    def find_open_points(self, new_cylinder): #find open points where the new cylinder can be placed 
+    def find_open_points(self, new_cylinder): 
+        #find open points where the new cylinder can be placed 
         open_points = []
         placed = [c for c in self.cylinders if c.placed]
 
@@ -75,6 +76,7 @@ class Bunch:
 
     def find_tangent_positions(self, c1, c2, new_cylinder):
          #find where the new circle can be placed to tangent with the previous 2 (uses circle-circle intersection --not entirely sure how the geometry works)
+         #returns positions which tangent the previous 2 cylinders 
         r1 = c1.radius + new_cylinder.radius
         r2 = c2.radius + new_cylinder.radius
         d = c1.distance_to_other(c2)
@@ -104,8 +106,6 @@ class Bunch:
 
         return positions
         
-
-
     def get_centre_grav(self): #get the  centre of gravity of all the circles
         pass
     
@@ -116,27 +116,58 @@ class Bunch:
         return e.radii
     
     def sort_by_size(self):
-        self.cylinders.sort(key = self.size_sort_key)
+        return self.cylinders.sort(key = self.size_sort_key)
     
     def sort_by_weight(self):
-        self.cylinders.sort(key = self.weight_sort_key)
+        return self.cylinders.sort(key = self.weight_sort_key)
 
     def random_shuffle(self):
-        random.shuffle(self.cylinders)
+        random_order = self.cylinders
+        return random.shuffle(random_order)  
 
-    def ordered_place(self, type):
-        #place first cylinder in the centre
+    def ordered_place(self):
+        #place in original order 
+        #place closest to origin
         for c in self.cylinders:
             open_points = self.find_open_points(c)
-
+            
             if open_points:
-                pass
+                best_position = min(open_points, key=lambda p: p[2])
+                c.set_pos(best_position[0], best_position[1])
+
+            
+
+    def greedy_place(self):
+        #place in order of largest to smallest by radius
+        pass
+
+    def random_place(self):
+        #place in random order and position
+        pass
 
     def draw(self, title = "Cylinder Placement", show_open_points = False):
-        #set up
+        #set up the graph
         fig, ax = plt.subplots(figsize=(10, 10))
         containing_radius = self.get_containing_radius()
-        container = plt.Rectangle((0,0), width = self.rec_width, height = self.rec_len, fill = False, edgecolour = "black", linewidth = 2, label = "Cargo Container")
+        container = plt.Rectangle((0,0), width = self.rec_width, height = self.rec_len, fill = False, edgecolour = "#0052cc", linewidth = 2, label = "Cargo Container")
+        ax.add_patch(container)
+        ax.set_aspect('equal')
+
+        ax.plot(0,0, 'x', color = "#0052cc", markersize = 12, markeredgewidth = 3, label = "Origin")
+        margin = 10
+        ax.set_xlim = self.rec_width + margin
+        ax.set_ylim = self.rec_len + margin
+        ax.grid(True, alpha = 0.3, color = "w")
+        ax.set_facecolor("#01364C")
+        fig.patch.set_facecolor("#01364C")
+        ax.tick_params(colors = "w")
+        for spine in ax.spines.values():
+            spine.set_color("w")
+        
+        ax.set_title(f"{title}\nContaining Radius: {containing_radius:.2f}", 
+                    color='w', fontsize=14, pad=20, weight='bold')
+        ax.legend(loc='upper right', facecolor='#01364C', edgecolor='#F7F8F9', 
+                 labelcolor='#F7F8F9', framealpha=0.9)
         
         ax.add_patch(container)
 
@@ -151,9 +182,10 @@ class Bunch:
 
         for cylinder in self.cylinders:
             if cylinder.is_placed():
-                cylinder_patch = plt.Circle((cylinder.x, cylinder.y), cylinder.radius,
-                                        fill=False, edgecolor= "#66ccff", linewidth=2)
+                cylinder_patch = plt.Circle((cylinder.x, cylinder.y), cylinder.radius,fill=False, edgecolor= "#66ccff", linewidth=2)
                 ax.add_patch(cylinder_patch)
-    
+                ax.plot(cylinder.x, cylinder.y, 'o', color = "#66ccff", markersize = 6)
+                ax.text(cylinder.x, cylinder.y, f'{int(cylinder.radius)}', ha='center', va='center', color='#F7F8F9', fontsize=9)
 
+        
 #testing
