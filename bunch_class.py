@@ -123,27 +123,34 @@ class Bunch:
 
     def random_shuffle(self):
         random_order = self.cylinders
-        return random.shuffle(random_order)  
+        return random.shuffle(random_order)
+
+    def place_towards_origin(self, cylinder_order):
+        for c in cylinder_order:
+            open_points = self.find_open_points(c)
+          
+            if open_points:
+                best_position = min(open_points, key=lambda p: p[2])
+                c.set_pos(best_position[0], best_position[1])         
+          
 
     def ordered_place(self):
         #place in original order 
         #place closest to origin
-        for c in self.cylinders:
-            open_points = self.find_open_points(c)
-            
-            if open_points:
-                best_position = min(open_points, key=lambda p: p[2])
-                c.set_pos(best_position[0], best_position[1])
+        self.reset
+        self.place_towards_origin(self.cylinders)     
 
-            
-
-    def greedy_place(self):
+    def greedy_place_size(self):
         #place in order of largest to smallest by radius
-        pass
+        self.reset
+        new_cylinders = self.sort_by_size
+        self.place_towards_origin(new_cylinders)
 
     def random_place(self):
         #place in random order and position
-        pass
+        self.reset
+        new_cylinders = self.random_shuffle
+        self.place_towards_origin(new_cylinders)
 
     def draw(self, title = "Cylinder Placement", show_open_points = False):
         #set up the graph
