@@ -155,44 +155,42 @@ class Bunch:
     def draw(self, title = "Cylinder Placement", show_open_points = False):
         #set up the graph
         fig, ax = plt.subplots(figsize=(10, 10))
+                
         containing_radius = self.get_containing_radius()
-        container = plt.Rectangle((0,0), width = self.rec_width, height = self.rec_len, fill = False, edgecolour = "#0052cc", linewidth = 2, label = "Cargo Container")
-        ax.add_patch(container)
-        ax.set_aspect('equal')
-
-        ax.plot(0,0, 'x', color = "#0052cc", markersize = 12, markeredgewidth = 3, label = "Origin")
-        margin = 10
-        ax.set_xlim = self.rec_width + margin
-        ax.set_ylim = self.rec_len + margin
-        ax.grid(True, alpha = 0.3, color = "w")
-        ax.set_facecolor("#01364C")
-        fig.patch.set_facecolor("#01364C")
-        ax.tick_params(colors = "w")
-        for spine in ax.spines.values():
-            spine.set_color("w")
-        
-        ax.set_title(f"{title}\nContaining Radius: {containing_radius:.2f}", 
-                    color='w', fontsize=14, pad=20, weight='bold')
-        ax.legend(loc='upper right', facecolor='#01364C', edgecolor='#F7F8F9', 
-                 labelcolor='#F7F8F9', framealpha=0.9)
-        
-        ax.add_patch(container)
-
-        #I'm not entirely sure on how this if statement resolves, as far as I can tell it's checking 
-        if show_open_points and len([c for c in self.cylinders if c.is_placed]) < len(self.cylinders):
-            next_cylinder = [c for c in self.cylinders if not c.is_placed][0]
-            open_points = self.find_open_points(next_cylinder)
-
+        containing_circle = PltCircle((0, 0), containing_radius, fill=False, edgecolor='#F4BA02', linewidth=2, linestyle='--', label='Containing radius')
+        ax.add_patch(containing_circle)
+                
+        if show_open_points and len([c for c in self.circles if c.placed]) < len(self.circles):
+            next_circle = [c for c in self.circles if not c.placed][0]
+            open_points = self.find_open_points(next_circle)
             if open_points:
                 xs, ys = zip(*[(p[0], p[1]) for p in open_points])
-                ax.scatter(xs, ys, c= "lime", s=30, alpha = 0.5, zorder = 5, label = "Open Points")
+                ax.scatter(xs, ys, c='lime', s=30, alpha=0.5, zorder=5, label='Open points')
+                
+            for circle in self.circles:
+                if circle.placed:
+                    circle_patch = PltCircle((circle.x, circle.y), circle.radius,fill=False, edgecolor='#99D9DD', linewidth=2)
+                    ax.add_patch(circle_patch)
+                    ax.plot(circle.x, circle.y, 'o', color='#99D9DD', markersize=6)
+                    ax.text(circle.x, circle.y, f'{int(circle.radius)}', ha='center', va='center', color='#F7F8F9', fontsize=9)
+                
+            ax.plot(0, 0, 'x', color='#F4BA02', markersize=12, markeredgewidth=3, label='Origin')
+                
+            ax.set_aspect('equal')
+            margin = containing_radius * 0.15
+            ax.set_xlim(-containing_radius - margin, containing_radius + margin)
+            ax.set_ylim(-containing_radius - margin, containing_radius + margin)
+                
+            ax.grid(True, alpha=0.3, color='#F7F8F9')
+            ax.set_facecolor('#01364C')
+            fig.patch.set_facecolor('#01364C')
+            ax.tick_params(colors='#F7F8F9')
+            for spine in ax.spines.values():
+                spine.set_color('#F7F8F9')
+                
+            ax.set_title(f"{title}\nContaining Radius: {containing_radius:.2f}", color='#F7F8F9', fontsize=14, pad=20, weight='bold')
+            ax.legend(loc='upper right', facecolor='#01364C', edgecolor='#F7F8F9', labelcolor='#F7F8F9', framealpha=0.9)
 
-        for cylinder in self.cylinders:
-            if cylinder.is_placed():
-                cylinder_patch = plt.Circle((cylinder.x, cylinder.y), cylinder.radius,fill=False, edgecolor= "#66ccff", linewidth=2)
-                ax.add_patch(cylinder_patch)
-                ax.plot(cylinder.x, cylinder.y, 'o', color = "#66ccff", markersize = 6)
-                ax.text(cylinder.x, cylinder.y, f'{int(cylinder.radius)}', ha='center', va='center', color='#F7F8F9', fontsize=9)
-
+            plt.show()
         
 #testing
