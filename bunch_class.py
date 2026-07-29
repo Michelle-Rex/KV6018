@@ -155,31 +155,34 @@ class Bunch:
     def draw(self, title = "Cylinder Placement", show_open_points = False):
         #set up the graph
         fig, ax = plt.subplots(figsize=(10, 10))
-                
+
+        #draw rectangle cargo container and bounding circle for placed cylinders
         containing_radius = self.get_containing_radius()
-        containing_circle = PltCircle((0, 0), containing_radius, fill=False, edgecolor='#F4BA02', linewidth=2, linestyle='--', label='Containing radius')
-        ax.add_patch(containing_circle)
+        bounding_circle = plt.Circle((0, 0), containing_radius, fill=False, edgecolor='#F4BA02', linewidth=2, linestyle='--', label='Bounding Circle')
+        rec_container = plt.Rectangle((0, 0), self.rec_width, self.rec_len, fill=False, edgecolor='#F4BA02', linewidth=2, linestyle='--', label='Cargo Container')
+        ax.add_patch(rec_container)
+        ax.add_patch(bounding_circle)
                 
-        if show_open_points and len([c for c in self.circles if c.placed]) < len(self.circles):
-            next_circle = [c for c in self.circles if not c.placed][0]
-            open_points = self.find_open_points(next_circle)
+        if show_open_points and len([c for c in self.cylinders if c.is_placed]) < len(self.cylinders):
+            next_cyl = [c for c in self.cylinders if not c.is_placed][0]
+            open_points = self.find_open_points(next_cyl)
             if open_points:
                 xs, ys = zip(*[(p[0], p[1]) for p in open_points])
                 ax.scatter(xs, ys, c='lime', s=30, alpha=0.5, zorder=5, label='Open points')
                 
-            for circle in self.circles:
-                if circle.placed:
-                    circle_patch = PltCircle((circle.x, circle.y), circle.radius,fill=False, edgecolor='#99D9DD', linewidth=2)
-                    ax.add_patch(circle_patch)
-                    ax.plot(circle.x, circle.y, 'o', color='#99D9DD', markersize=6)
-                    ax.text(circle.x, circle.y, f'{int(circle.radius)}', ha='center', va='center', color='#F7F8F9', fontsize=9)
+            for cylinder in self.cylinders:
+                if cylinder.is_placed:
+                    cylinder_patch = plt.Circle((cylinder.x, cylinder.y), cylinder.radius, fill=False, edgecolor='#99D9DD', linewidth=2)
+                    ax.add_patch(cylinder_patch)
+                    ax.plot(cylinder.x, cylinder.y, 'o', color='#99D9DD', markersize=6)
+                    ax.text(cylinder.x, cylinder.y, f'{int(cylinder.radius)}', ha='center', va='center', color='#F7F8F9', fontsize=9)
                 
             ax.plot(0, 0, 'x', color='#F4BA02', markersize=12, markeredgewidth=3, label='Origin')
                 
             ax.set_aspect('equal')
-            margin = containing_radius * 0.15
-            ax.set_xlim(-containing_radius - margin, containing_radius + margin)
-            ax.set_ylim(-containing_radius - margin, containing_radius + margin)
+            margin = 10
+            ax.set_xlim(-self.rec_width - margin, self.rec_width + margin)
+            ax.set_ylim(-self.rec_len - margin, self.rec_len + margin)
                 
             ax.grid(True, alpha=0.3, color='#F7F8F9')
             ax.set_facecolor('#01364C')
@@ -188,9 +191,8 @@ class Bunch:
             for spine in ax.spines.values():
                 spine.set_color('#F7F8F9')
                 
-            ax.set_title(f"{title}\nContaining Radius: {containing_radius:.2f}", color='#F7F8F9', fontsize=14, pad=20, weight='bold')
+            ax.set_title(f"{title}\nBounding Circle: {containing_radius:.2f}", color='#F7F8F9', fontsize=14, pad=20, weight='bold')
             ax.legend(loc='upper right', facecolor='#01364C', edgecolor='#F7F8F9', labelcolor='#F7F8F9', framealpha=0.9)
 
             plt.show()
         
-#testing
