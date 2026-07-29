@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 class Bunch:
     #manages the collection of cylinders and the placement aglorithms
     def __init__(self, radii, weight, rec_len, rec_width):
-        self.cylinders = [cyl.Cylinder(radii[i], weight[i]) for i in (0, len(radii)-1)]
+        self.cylinders = [cyl.Cylinder(radii[i], weight[i], id = i+1) for i in range(0, len(radii))]
         self.radii = radii
         self.weight = weight
         self.rec_len = rec_len
