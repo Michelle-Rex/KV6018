@@ -13,6 +13,7 @@ class Bunch:
         self.rec_width = rec_width
         self.all_placed = False
 
+
     def reset(self):
         for cylinder in self.cylinders:
             cylinder.x = 0
@@ -26,6 +27,7 @@ class Bunch:
             raise Exception("all cylinders not yet placed")
         else:
             return max(c.containing_radius for c in self.cylinders)
+
     
     def check_fit(self):
         if self.get_containing_radius()*2 > self.rec_len or self.get_containing_radius()*2 > self.rec_width:
@@ -33,6 +35,7 @@ class Bunch:
 
         else:
             return True
+
             
     def find_open_points(self, new_cylinder): 
         #find open points where the new cylinder can be placed 
@@ -57,18 +60,22 @@ class Bunch:
             c1 = placed[0]
             distance = c1.radius + new_cylinder.radius
             print("distance =", distance)
+
             for angle in np.linspace(0, 2*np.pi, 36, endpoint = False):
-                x = int((0 + distance) * np.cos(angle))
-                y = int((0 + distance) * np.sin(angle))
+                x = int(0 + distance * np.cos(angle))
+                y = int(0 + distance * np.sin(angle))
                 dist_from_origin = np.sqrt(x**2 + y**2) 
                 #print(x, y)
+
                 if dist_from_origin + new_cylinder.radius > self.rec_len or dist_from_origin + new_cylinder.radius > self.rec_width:
-                    print("coordinates -", x, y, "are outside the container")
+                    print("coordinates: ", x, y, "are outside the container")
                 if c1.check_overlap(new_cylinder): #new cylinder would overlap with first cylinder
+                    new_dist = np.sqrt(x**2 + y**2)
+                    print("new cylinder distance from origin would be: ", new_dist)
                     print("coordinates -", x, y, "overlaps with first cylinder")
                 else:
                     print("cordinates: ", x, y, "are valid!")
-                    open_points.append((x, y, dist_from_origin))
+                    open_points.append((x, y, dist_from_origin))                
             return open_points
 
         #for placing cylinders after the first 2
@@ -103,6 +110,7 @@ class Bunch:
         
         return open_points
 
+
     def find_tangent_positions(self, c1, c2, new_cylinder):
          #find where the new circle can be placed to tangent with the previous 2 (uses circle-circle intersection --not entirely sure how the geometry works)
          #returns positions which tangent the previous 2 cylinders 
@@ -134,25 +142,32 @@ class Bunch:
             positions.append((px, py))
 
         return positions
+
         
     def get_centre_grav(self): #get the  centre of gravity of all the circles
         pass
+
     
     def weight_sort_key(e):
         return e.weight
 
+
     def size_sort_key(e):
         return e.radii
-    
+
+
     def sort_by_size(self):
         return self.cylinders.sort(key = self.size_sort_key)
-    
+
+
     def sort_by_weight(self):
         return self.cylinders.sort(key = self.weight_sort_key)
+
 
     def random_shuffle(self):
         random_order = self.cylinders
         return random.shuffle(random_order)
+
 
     def place_towards_origin(self, cylinder_list):
         placed = 0
@@ -184,17 +199,20 @@ class Bunch:
         else:
             raise Exception("not all circles placed")     
 
+
     def greedy_place_size(self):
         #place in order of largest to smallest by radius
         self.reset
         new_cylinders = self.sort_by_size
         self.place_towards_origin(new_cylinders)
 
+
     def random_place(self):
         #place in random order and position
         self.reset
         new_cylinders = self.random_shuffle
         self.place_towards_origin(new_cylinders)
+
 
     def draw(self, title = "Cylinder Placement", show_open_points = False):
         #set up the graph
