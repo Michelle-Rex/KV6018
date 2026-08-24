@@ -62,20 +62,16 @@ class Bunch:
             print("distance =", distance)
 
             for angle in np.linspace(0, 2*np.pi, 36, endpoint = False):
-                x = int(0 + distance * np.cos(angle))
-                y = int(0 + distance * np.sin(angle))
+                x = 0 + distance * np.cos(angle)
+                y = 0 + distance * np.sin(angle)
                 dist_from_origin = np.sqrt(x**2 + y**2) 
                 #print(x, y)
 
                 if dist_from_origin + new_cylinder.radius > self.rec_len or dist_from_origin + new_cylinder.radius > self.rec_width:
                     print("coordinates: ", x, y, "are outside the container")
-                if c1.check_overlap(new_cylinder): #new cylinder would overlap with first cylinder
-                    new_dist = np.sqrt(x**2 + y**2)
-                    print("new cylinder distance from origin would be: ", new_dist)
-                    print("coordinates -", x, y, "overlaps with first cylinder")
                 else:
                     print("cordinates: ", x, y, "are valid!")
-                    open_points.append((x, y, dist_from_origin))                
+                    open_points.append((x, y, dist_from_origin))
             return open_points
 
         #for placing cylinders after the first 2
@@ -173,7 +169,7 @@ class Bunch:
         placed = 0
         for c in cylinder_list:
             open_points = self.find_open_points(c)
-          
+            print("cylinders placed = ", placed)
             if open_points:
                 print("number of open points is: ", len(open_points))
                 best_position = min(open_points, key=lambda p: p[2])
