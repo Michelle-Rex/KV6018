@@ -20,6 +20,7 @@ class Bunch:
             cylinder.y = 0
             cylinder.is_placed = False
 
+    #create
     def get_containing_radius(self):
         if None in self.cylinders:
             raise Exception("Cylinder list empty")
@@ -28,7 +29,8 @@ class Bunch:
         else:
             return max(c.containing_radius for c in self.cylinders)
 
-    
+    #check that all cylinders fit within the container
+    #this won't work for rectangular containers, needs changing
     def check_fit(self):
         if self.get_containing_radius()*2 > self.rec_len or self.get_containing_radius()*2 > self.rec_width:
            return False
@@ -36,9 +38,8 @@ class Bunch:
         else:
             return True
 
-            
+     #find open points where the new cylinder can be placed         
     def find_open_points(self, new_cylinder): 
-        #find open points where the new cylinder can be placed 
         open_points = []
 
         #get cylinders already placed
@@ -139,8 +140,8 @@ class Bunch:
 
         return positions
 
-        
-    def get_centre_grav(self): #get the  centre of gravity of all the circles
+    #get the  centre of gravity of all the circles
+    def get_centre_grav(self):
         pass
 
     
@@ -151,20 +152,20 @@ class Bunch:
     def size_sort_key(e):
         return e.radii
 
-
+    #place by radius 
     def sort_by_size(self):
         return self.cylinders.sort(key = self.size_sort_key)
 
-
+    #place by weight
     def sort_by_weight(self):
         return self.cylinders.sort(key = self.weight_sort_key)
 
-
+    #randomize placement order
     def random_shuffle(self):
         random_order = self.cylinders
         return random.shuffle(random_order)
 
-
+    #place all cylinders towards origin
     def place_towards_origin(self, cylinder_list):
         placed = 0
         for c in cylinder_list:
