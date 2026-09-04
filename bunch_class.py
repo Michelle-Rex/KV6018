@@ -2,9 +2,11 @@ import cylinder_class as cyl
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+#import container_instances as prob
 
 class Bunch:
     #manages the collection of cylinders and the placement aglorithms
+    #needs argument "instance: prob.Instance"
     def __init__(self, radii, weight, rec_len, rec_width):
         self.cylinders = [cyl.Cylinder(radii[i], weight[i], id = i+1) for i in range(0, len(radii))]
         self.radii = radii
@@ -20,7 +22,7 @@ class Bunch:
             cylinder.y = 0
             cylinder.is_placed = False
 
-    #create
+    #create containing radius
     def get_containing_radius(self):
         if None in self.cylinders:
             raise Exception("Cylinder list empty")
@@ -31,10 +33,9 @@ class Bunch:
 
     #check that all cylinders fit within the container
     #this won't work for rectangular containers, needs changing
-    def check_fit(self):
-        if self.get_containing_radius()*2 > self.rec_len or self.get_containing_radius()*2 > self.rec_width:
+    def check_fit(self, cyl):
+        if cyl.get_origin_distance()+cyl.radius > self.rec_len or cyl.get_origin_distance()+cyl.radius > self.rec_width:
            return False
-
         else:
             return True
 
@@ -55,9 +56,8 @@ class Bunch:
             return open_points
 
         #Place second cyinder next to first 
-        #something isn't working
         if len(placed) == 1:
-            print("find_open_points works for placing second") #this is firing, so issue is further down
+            print("find_open_points works for placing second") #debug statement
             c1 = placed[0]
             distance = c1.radius + new_cylinder.radius
             print("distance =", distance)
@@ -66,41 +66,46 @@ class Bunch:
                 x = 0 + distance * np.cos(angle)
                 y = 0 + distance * np.sin(angle)
                 dist_from_origin = np.sqrt(x**2 + y**2) 
-                #print(x, y)
+                #print(x, y) #debug statement
 
                 if dist_from_origin + new_cylinder.radius > self.rec_len or dist_from_origin + new_cylinder.radius > self.rec_width:
-                    print("coordinates: ", x, y, "are outside the container")
+                    print("coordinates: ", x, y, "are outside the container") #debug statement
                 else:
-                    print("cordinates: ", x, y, "are valid!")
+                    print("cordinates: ", x, y, "are valid!") #debug statement
                     open_points.append((x, y, dist_from_origin))
             return open_points
 
         #for placing cylinders after the first 2
-        if len(placed) > 2:
-            print("find open points works for 3+ cylinders")
+        #not working right now
+        if len(placed) >= 2:
+            print("find open points works for 3+ cylinders") #debug statement 
             for i in range(0, len(placed)):
                 for j in range(i+1, len(placed)):
+                    #get last 2 cylinders placed
                     c1 = placed[i]
                     c2 = placed[j]
 
                     positions = self.find_tangent_positions(c1, c2, new_cylinder)
                     
                     if positions:
+                        print("tangent positions found") #debug statement #working
                         for x,y in positions: 
-                            temp_cyl = cyl.Cylinder(new_cylinder.radius, new_cylinder.weight)
+                            print(x, y) #debug statement
+                            temp_cyl = cyl.Cylinder(new_cylinder.radius, new_cylinder.weight, id=0)
                             temp_cyl.set_pos(x, y)
 
-                            valid = self.check_fit
-           
+                            valid = self.check_fit(temp_cyl)
+                             
                             for other in placed:
                                 if other != c1 and other != c2:
                                     if temp_cyl.check_overlap(other):
                                         valid = False
-                                    break
+                                        break
+                                        
 
                         if valid:
                             dist_from_origin = np.sqrt(x**2 + y**2)
-                            open_points.append((x, y))
+                            open_points.append((x, y, dist_from_origin))
 
                     else:
                         raise Exception("no tangent positions found")
@@ -170,12 +175,12 @@ class Bunch:
         placed = 0
         for c in cylinder_list:
             open_points = self.find_open_points(c)
-            print("cylinders placed = ", placed)
+            print("cylinders placed = ", placed) #debug statement
             if open_points:
-                print("number of open points is: ", len(open_points))
+                print("number of open points is: ", len(open_points)) #debug statement
                 best_position = min(open_points, key=lambda p: p[2])
                 if best_position:
-                    print("best found position is: ", best_position)
+                    print("best found position is: ", best_position) #debug statement
                     c.set_pos(best_position[0], best_position[1])
                     placed = placed + 1
                 else:
@@ -183,7 +188,8 @@ class Bunch:
             else:
                 raise Exception("No open points found")
         if placed == len(self.cylinders):
-            self.all_placed = True       
+            self.all_placed = True  
+            print(self.all_placed)     
           
 
     def ordered_place(self):
