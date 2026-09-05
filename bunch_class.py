@@ -14,7 +14,9 @@ class Bunch:
         self.cylinders = []
 
         for c in instance.cylinders:
-            new_c = cyl.Cylinder()
+            print(c)
+            new_c = cyl.Cylinder(weight = c.weight, radius = c.diameter/2)
+            self.cylinders.append(new_c)
 
 
     def reset(self):
@@ -39,7 +41,7 @@ class Bunch:
     #check that all cylinders fit within the container
     #this won't work for rectangular containers, needs changing
     def check_fit(self, cyl):
-        if cyl.get_origin_distance()+cyl.radius > self.rec_len or cyl.get_origin_distance()+cyl.radius > self.rec_width:
+        if cyl.get_origin_distance()+cyl.radius > self.container.width or cyl.get_origin_distance()+cyl.radius > self.container.depth:
            return False
         else:
             return True
@@ -56,16 +58,16 @@ class Bunch:
 
         #place first cylinder at centre
         if len(placed) == 0: 
-            print("find_open_points works for placing first")
+            #print("find_open_points works for placing first")
             open_points = [(0, 0, 0)]
             return open_points
 
         #Place second cyinder next to first 
         if len(placed) == 1:
-            print("find_open_points works for placing second") #debug statement
+            #print("find_open_points works for placing second") #debug statement
             c1 = placed[0]
             distance = c1.radius + new_cylinder.radius
-            print("distance =", distance)
+            #print("distance =", distance)
 
             for angle in np.linspace(0, 2*np.pi, 36, endpoint = False):
                 x = 0 + distance * np.cos(angle)
@@ -73,17 +75,17 @@ class Bunch:
                 dist_from_origin = np.sqrt(x**2 + y**2) 
                 #print(x, y) #debug statement
 
-                if dist_from_origin + new_cylinder.radius > self.rec_len or dist_from_origin + new_cylinder.radius > self.rec_width:
+                if dist_from_origin + new_cylinder.radius > self.container.width or dist_from_origin + new_cylinder.radius > self.container.depth:
                     print("coordinates: ", x, y, "are outside the container") #debug statement
                 else:
-                    print("cordinates: ", x, y, "are valid!") #debug statement
+                    #print("cordinates: ", x, y, "are valid!") #debug statement
                     open_points.append((x, y, dist_from_origin))
             return open_points
 
         #for placing cylinders after the first 2
         #not working right now
         if len(placed) >= 2:
-            print("find open points works for 3+ cylinders") #debug statement 
+            #print("find open points works for 3+ cylinders") #debug statement 
             for i in range(0, len(placed)):
                 for j in range(i+1, len(placed)):
                     #get last 2 cylinders placed
@@ -93,10 +95,11 @@ class Bunch:
                     positions = self.find_tangent_positions(c1, c2, new_cylinder)
                     
                     if positions:
-                        print("tangent positions found") #debug statement #working
+                        print("number of tangent positions returned = ", len(positions))
+                        #print("tangent positions found") #debug statement #working
                         for x,y in positions: 
-                            print(x, y) #debug statement
-                            temp_cyl = cyl.Cylinder(new_cylinder.radius, new_cylinder.weight, id=0)
+                            #print(x, y) #debug statement
+                            temp_cyl = cyl.Cylinder(new_cylinder.radius, new_cylinder.weight)
                             temp_cyl.set_pos(x, y)
 
                             valid = self.check_fit(temp_cyl)
@@ -150,25 +153,17 @@ class Bunch:
 
         return positions
 
-    #get the  centre of gravity of all the circles
-    def get_centre_grav(self):
-        pass
-
-    
-    def weight_sort_key(e):
-        return e.weight
-
-
-    def size_sort_key(e):
-        return e.radii
-
     #place by radius 
     def sort_by_size(self):
-        return self.cylinders.sort(key = self.size_sort_key)
+        new_cylinders = self.cylinders
+        new_cylinders.sort(key = lambda x: x.radius, reverse= True)
+        return new_cylinders
 
     #place by weight
     def sort_by_weight(self):
-        return self.cylinders.sort(key = self.weight_sort_key)
+        new_cylinders = self.cylinders
+        new_cylinders.sort(key = lambda x: x.weight, reverse = True)
+        return new_cylinders
 
     #randomize placement order
     def random_shuffle(self):
@@ -197,14 +192,13 @@ class Bunch:
             print(self.all_placed)     
           
 
-    def ordered_place(self):
+    def place(self):
         #place in original order 
         #place closest to origin
         self.reset
         self.place_towards_origin(self.cylinders)
         if self.all_placed == True:
-            #self.draw()
-            self.draw()
+            self.draw(self.cylinders, "Original Order Place")
         else:
             raise Exception("not all circles placed")     
 
@@ -212,8 +206,10 @@ class Bunch:
     def greedy_place_size(self):
         #place in order of largest to smallest by radius
         self.reset
-        new_cylinders = self.sort_by_size
+        new_cylinders = self.sort_by_size()
         self.place_towards_origin(new_cylinders)
+        self.draw(new_cylinders, "Greedy Place by Radius")
+        return new_cylinders
 
 
     def random_place(self):
@@ -222,7 +218,7 @@ class Bunch:
         new_cylinders = self.random_shuffle
         self.place_towards_origin(new_cylinders)
 
-    def draw(self, title = "Cylinder Placement"):
+    def draw(self, c_list, title):
         fig, ax = plt.subplots(figsize=(10, 10))
         
         #draw bounding circle
@@ -231,12 +227,12 @@ class Bunch:
         ax.add_patch(bounding_circle)
 
         #draw cargo container
-        rec_x = 0-(self.rec_width/2)
-        rec_y = 0-(self.rec_len/2)
-        rec_container = plt.Rectangle((rec_x, rec_y), self.rec_width, self.rec_len, fill=False, edgecolor='#F4BA02', linewidth=2, linestyle='--', label='Cargo Container')
+        rec_x = 0-(self.container.depth/2)
+        rec_y = 0-(self.container.width/2)
+        rec_container = plt.Rectangle((rec_x, rec_y), self.container.depth, self.container.width, fill=False, edgecolor='#F4BA02', linewidth=2, linestyle='--', label='Cargo Container')
         ax.add_patch(rec_container)
 
-        for c in self.cylinders:
+        for c in c_list:
             cylinder_patch = PltCircle((c.x, c.y), c.radius, fill=False, edgecolor='#99D9DD', linewidth=2)
             ax.add_patch(cylinder_patch)
             ax.plot(c.x, c.y, 'o', color='#99D9DD', markersize=6)
@@ -247,8 +243,8 @@ class Bunch:
         #set limits of grid to be a margin of 10 around the cargo container
         ax.set_aspect('equal')
         margin = 10
-        ax.set_xlim((-self.rec_width/2) - margin, (self.rec_width/2) + margin)
-        ax.set_ylim((-self.rec_len/2) - margin, (self.rec_len/2) + margin)
+        ax.set_xlim((-self.container.depth/2) - margin, (self.container.depth/2) + margin)
+        ax.set_ylim((-self.container.width/2) - margin, (self.container.width/2) + margin)
 
         ax.grid(True, alpha=0.3, color='#F7F8F9')
         ax.set_facecolor('#01364C')

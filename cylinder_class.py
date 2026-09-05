@@ -1,8 +1,7 @@
 import numpy as np
 
 class Cylinder:
-    def __init__(self, radius, weight, id):
-        self.id = id
+    def __init__(self, radius, weight):
         self.radius = radius
         self.weight = weight
         self.x = 0

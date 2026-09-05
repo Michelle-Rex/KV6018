@@ -3,13 +3,13 @@ import cylinder_class as cyl
 import population_class as pop
 import numpy as np
 import matplotlib.pyplot as plt
+import container_instances as prob
 
-#testing
-container_l = 100
-container_w = 50
-cylinders_radii = [2, 5, 3, 6, 8]
-cylinders_weight = [2, 3, 6, 7, 8]
+def printSolution(solution: list):
+    for c in solution:
+        print(c.radius*2) #to get diameter
 
-test_bunch = bunch.Bunch(cylinders_radii, cylinders_weight, container_l, container_w)
-test_bunch.reset()
-test_bunch.ordered_place()
+problems = prob.create_basic_instances()
+test_bunch = bunch.Bunch(problems[0])
+#test_bunch.place()
+solution = test_bunch.greedy_place_size()
