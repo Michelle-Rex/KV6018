@@ -2,18 +2,19 @@ import cylinder_class as cyl
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-#import container_instances as prob
+from matplotlib.patches import Circle as PltCircle
+import container_instances as prob
 
 class Bunch:
     #manages the collection of cylinders and the placement aglorithms
     #needs argument "instance: prob.Instance"
-    def __init__(self, radii, weight, rec_len, rec_width):
-        self.cylinders = [cyl.Cylinder(radii[i], weight[i], id = i+1) for i in range(0, len(radii))]
-        self.radii = radii
-        self.weight = weight
-        self.rec_len = rec_len
-        self.rec_width = rec_width
+    def __init__(self, instance: prob.Instance):
+        self.container = instance.container
         self.all_placed = False
+        self.cylinders = []
+
+        for c in instance.cylinders:
+            new_c = cyl.Cylinder()
 
 
     def reset(self):
@@ -29,7 +30,11 @@ class Bunch:
         if self.all_placed == False:
             raise Exception("all cylinders not yet placed")
         else:
-            return max(c.containing_radius for c in self.cylinders)
+            all_containing_radii = []
+            for c in self.cylinders:
+                containing_radius = c.get_origin_distance() + c.radius
+                all_containing_radii.append(containing_radius)
+            return max(all_containing_radii)
 
     #check that all cylinders fit within the container
     #this won't work for rectangular containers, needs changing
@@ -198,6 +203,7 @@ class Bunch:
         self.reset
         self.place_towards_origin(self.cylinders)
         if self.all_placed == True:
+            #self.draw()
             self.draw()
         else:
             raise Exception("not all circles placed")     
@@ -216,48 +222,45 @@ class Bunch:
         new_cylinders = self.random_shuffle
         self.place_towards_origin(new_cylinders)
 
-
-    def draw(self, title = "Cylinder Placement", show_open_points = False):
-        #set up the graph
+    def draw(self, title = "Cylinder Placement"):
         fig, ax = plt.subplots(figsize=(10, 10))
-
-        #draw rectangle cargo container and bounding circle for placed cylinders
+        
+        #draw bounding circle
         containing_radius = self.get_containing_radius()
-        bounding_circle = plt.Circle((0, 0), containing_radius, fill=False, edgecolor='#F4BA02', linewidth=2, linestyle='--', label='Bounding Circle')
-        rec_container = plt.Rectangle((0, 0), self.rec_width, self.rec_len, fill=False, edgecolor='#F4BA02', linewidth=2, linestyle='--', label='Cargo Container')
-        ax.add_patch(rec_container)
+        bounding_circle = PltCircle((0, 0), containing_radius, fill=False, edgecolor='#F4BA02', linewidth=2, linestyle='--', label='Bounding Circle')
         ax.add_patch(bounding_circle)
-                
-        if show_open_points and len([c for c in self.cylinders if c.is_placed]) < len(self.cylinders):
-            next_cyl = [c for c in self.cylinders if not c.is_placed][0]
-            open_points = self.find_open_points(next_cyl)
-            if open_points:
-                xs, ys = zip(*[(p[0], p[1]) for p in open_points])
-                ax.scatter(xs, ys, c='lime', s=30, alpha=0.5, zorder=5, label='Open points')
-                
-            for cylinder in self.cylinders:
-                if cylinder.is_placed:
-                    cylinder_patch = plt.Circle((cylinder.x, cylinder.y), cylinder.radius, fill=False, edgecolor='#99D9DD', linewidth=2)
-                    ax.add_patch(cylinder_patch)
-                    ax.plot(cylinder.x, cylinder.y, 'o', color='#99D9DD', markersize=6)
-                    ax.text(cylinder.x, cylinder.y, f'{int(cylinder.radius)}', ha='center', va='center', color='#F7F8F9', fontsize=9)
-                
-            ax.plot(0, 0, 'x', color='#F4BA02', markersize=12, markeredgewidth=3, label='Origin')
-                
-            ax.set_aspect('equal')
-            margin = 10
-            ax.set_xlim(-self.rec_width - margin, self.rec_width + margin)
-            ax.set_ylim(-self.rec_len - margin, self.rec_len + margin)
-                
-            ax.grid(True, alpha=0.3, color='#F7F8F9')
-            ax.set_facecolor('#01364C')
-            fig.patch.set_facecolor('#01364C')
-            ax.tick_params(colors='#F7F8F9')
-            for spine in ax.spines.values():
-                spine.set_color('#F7F8F9')
-                
-            ax.set_title(f"{title}\nBounding Circle: {containing_radius:.2f}", color='#F7F8F9', fontsize=14, pad=20, weight='bold')
-            ax.legend(loc='upper right', facecolor='#01364C', edgecolor='#F7F8F9', labelcolor='#F7F8F9', framealpha=0.9)
 
-            plt.show()
+        #draw cargo container
+        rec_x = 0-(self.rec_width/2)
+        rec_y = 0-(self.rec_len/2)
+        rec_container = plt.Rectangle((rec_x, rec_y), self.rec_width, self.rec_len, fill=False, edgecolor='#F4BA02', linewidth=2, linestyle='--', label='Cargo Container')
+        ax.add_patch(rec_container)
+
+        for c in self.cylinders:
+            cylinder_patch = PltCircle((c.x, c.y), c.radius, fill=False, edgecolor='#99D9DD', linewidth=2)
+            ax.add_patch(cylinder_patch)
+            ax.plot(c.x, c.y, 'o', color='#99D9DD', markersize=6)
+            ax.text(c.x, c.y, f'{int(c.radius)}', ha='center', va='center', color='#F7F8F9', fontsize=9)
+
+        ax.plot(0, 0, 'x', color='#F4BA02', markersize=12, markeredgewidth=3, label='Origin')
+
+        #set limits of grid to be a margin of 10 around the cargo container
+        ax.set_aspect('equal')
+        margin = 10
+        ax.set_xlim((-self.rec_width/2) - margin, (self.rec_width/2) + margin)
+        ax.set_ylim((-self.rec_len/2) - margin, (self.rec_len/2) + margin)
+
+        ax.grid(True, alpha=0.3, color='#F7F8F9')
+        ax.set_facecolor('#01364C')
+        fig.patch.set_facecolor('#01364C')
+        ax.tick_params(colors='#F7F8F9')
+        for spine in ax.spines.values():
+            spine.set_color('#F7F8F9')
+
+        ax.set_title(f"{title}\nBounding Circle: {containing_radius:.2f}", color='#F7F8F9', fontsize=14, pad=20, weight='bold')
+        ax.legend(loc='upper right', facecolor='#01364C', edgecolor='#F7F8F9', labelcolor='#F7F8F9', framealpha=0.9)
+
+        ax.plot()
+        plt.show()
+
         

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 #testing
 container_l = 100
-container_w = 200
+container_w = 50
 cylinders_radii = [2, 5, 3, 6, 8]
 cylinders_weight = [2, 3, 6, 7, 8]
 
