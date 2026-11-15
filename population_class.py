@@ -1,6 +1,7 @@
 import container_instances as prob
 import numpy as np
 import matplotlib.pyplot as plt
+import solution_generation as sol
 
 class Population:
     def __init__(self, instance: prob.Instance):
