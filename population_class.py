@@ -1,7 +1,7 @@
-import bunch_class as bunch
-import cylinder_class as cyl
+import container_instances as prob
 import numpy as np
 import matplotlib.pyplot as plt
 
 class Population:
-    pass
+    def __init__(self, instance: prob.Instance):
+        pass
